@@ -1,0 +1,19 @@
+#OS Junk Files
+[Tt]humbs.db
+*.DS_Store
+
+#Data Files
+*.csv
+
+#Image Files 
+*.jpg
+*.jpeg
+*.png
+*.pgm
+
+#Compressed Files
+*.zip
+*.rar
+
+#Pycache
+*.pyc
