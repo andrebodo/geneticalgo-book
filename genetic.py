@@ -62,6 +62,6 @@ def get_best(get_fitness, targetLen, optimalFitness, geneSet, display):
 		if not child.Fitness > bestParent.Fitness:
 			continue
 		display(child)
-		if cnot optimalFitness > child.Fitness:
+		if not optimalFitness > child.Fitness:
 			return child
 		bestParent = child
