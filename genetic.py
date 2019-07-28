@@ -48,25 +48,32 @@ def _mutate(parent, geneSet, get_fitness):
 	fitness = get_fitness(childGenes)
 	return Chromosome(childGenes, fitness)
 
-def get_best(get_fitness, targetLen, optimalFitness, geneSet, display):
-	random.seed()
-	bestParent = _generate_parent(targetLen, geneSet, get_fitness)
-	display(bestParent)
-
-	if not optimalFitness > bestParent.Fitness:
-		return bestParent
+# Generate sucessively better gene squence and send to get_best
+def _get_improvement(new_child, generate_parent):
+	bestParent = generate_parent()
+	yield bestParent
 
 	while True:
-		child = _mutate(bestParent, geneSet, get_fitness)
-
+		child = new_child(bestParent)
 		if bestParent.Fitness > child.Fitness:
 			continue
-
 		if not child.Fitness > bestParent.Fitness:
 			bestParent = child
 			continue
-			
-		display(child)
-		if not optimalFitness > child.Fitness:
-			return child
+		yield child
 		bestParent = child
+
+
+def get_best(get_fitness, targetLen, optimalFitness, geneSet, display):
+	random.seed()
+
+	def fnMutate(parent):
+		return _mutate(parent, geneSet, get_fitness)
+
+	def fnGenerateParent():
+		return _generate_parent(targetLen, geneSet, get_fitness)
+
+	for improvement in _get_improvement(fnMutate, fnGenerateParent):
+		display(improvement)
+		if not optimalFitness > improvement.Fitness:
+			return improvement
