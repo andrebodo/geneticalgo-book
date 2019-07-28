@@ -11,7 +11,7 @@ def get_fitness(genes, target):
 # # Display 
 def display(candidate, startTime):
 	timeDiff = time.time() - startTime
-	print(f'{candidate.Genes}\t{candidate.Fitness}\t{str(timeDiff)}')
+	print(f'{''.join(candidate.Genes)}\t{candidate.Fitness}\t{str(timeDiff)}')
 
 class GuessPasswordTest(unittest.TestCase):
 
@@ -46,7 +46,7 @@ class GuessPasswordTest(unittest.TestCase):
 		optimalFitness = len(target)
 		best = genetic.get_best(fnGetFitness, len(target), optimalFitness, self.geneset, fnDisplay)
 
-		self.assertEqual(best.Genes, target)
+		self.assertEqual(''.join(best.Genes), target)
 
 if __name__ == '__main__':
 	unittest.main() # Will call each function who name starts with test
