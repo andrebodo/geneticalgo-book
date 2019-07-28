@@ -59,8 +59,13 @@ def get_best(get_fitness, targetLen, optimalFitness, geneSet, display):
 	while True:
 		child = _mutate(bestParent, geneSet, get_fitness)
 
-		if not child.Fitness > bestParent.Fitness:
+		if bestParent.Fitness > child.Fitness:
 			continue
+
+		if not child.Fitness > bestParent.Fitness:
+			bestParent = child
+			continue
+			
 		display(child)
 		if not optimalFitness > child.Fitness:
 			return child
