@@ -4,16 +4,19 @@ import genetic
 
 from datetime import datetime as dt
 
-class MagicSquareTest(unittest.TestCase):
+class MagicSquareTests(unittest.TestCase):
 	
 	def test_size_3(self):
 		self.generate(3, 50)
 
+	def test_size_4(self):
+		self.generate(4, 50)
+
 	def test_size_5(self):
 		self.generate(5, 500)
 
-	# def test_size_10(self):
-	# 	self.generate(10, 10000)
+	def test_size_10(self):
+		self.generate(10, 10000)
 
 	def generate(self, diagonalSize, maxAge):
 		nSquared = diagonalSize * diagonalSize
