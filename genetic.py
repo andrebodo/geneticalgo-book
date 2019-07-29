@@ -67,7 +67,7 @@ def _get_improvement(new_child, generate_parent, maxAge):
 	historicalFitnesses = [bestParent.Fitness] # List of fitnesses of the historical best parents
 
 	while True:
-		child = new_child(bestParent) # This refers to the value from the function passed as an arguement
+		child = new_child(parent) # This refers to the value from the function passed as an arguement
 		if parent.Fitness > child.Fitness:
 			if maxAge is None:
 				continue
@@ -86,7 +86,7 @@ def _get_improvement(new_child, generate_parent, maxAge):
 			parent = bestParent # otherwise replace parent with best parent, reset age to 0 giving time to anneal
 			parent.Age = 0
 			continue
-		if not child.Fitness > bestParent.Fitness:
+		if not child.Fitness > parent.Fitness:
 			# same fitness
 			child.Age = parent.Age + 1
 			parent = child
