@@ -91,7 +91,6 @@ def _get_improvement(new_child, generate_parent, maxAge):
 			child.Age = parent.Age + 1
 			parent = child
 			continue
-		yield child
 		parent = child
 		parent.Age = 0
 		# when find child with fitness better than best parent, replace best parent, and append to historical fitnesses
@@ -104,7 +103,6 @@ def _get_improvement(new_child, generate_parent, maxAge):
 
 def get_best(get_fitness, targetLen, optimalFitness, geneSet, display, 
 			custom_mutate = None, custom_create = None, maxAge = None):
-	random.seed()
 
 	if custom_mutate is None:
 		def fnMutate(parent):
