@@ -48,13 +48,21 @@ def _mutate(parent, geneSet, get_fitness):
 	fitness = get_fitness(childGenes)
 	return Chromosome(childGenes, fitness)
 
+def _mutate_custom(parent, custom_mutate, get_fitness):
+	childGenes = parent.Genes[:]
+	custom_mutate(childGenes)
+	fitness = get_fitness(childGenes)
+	return Chromosome(childGenes, fitness)
+
 # Generate sucessively better gene squence and send to get_best
+# using yield -> code does not run when function is called! instead it
+# returns a generator object (single use iterable)
 def _get_improvement(new_child, generate_parent):
-	bestParent = generate_parent()
+	bestParent = generate_parent() # This refers to the value from the function passed as an arguement
 	yield bestParent
 
 	while True:
-		child = new_child(bestParent)
+		child = new_child(bestParent) # This refers to the value from the function passed as an arguement
 		if bestParent.Fitness > child.Fitness:
 			continue
 		if not child.Fitness > bestParent.Fitness:
@@ -64,14 +72,23 @@ def _get_improvement(new_child, generate_parent):
 		bestParent = child
 
 
-def get_best(get_fitness, targetLen, optimalFitness, geneSet, display):
+def get_best(get_fitness, targetLen, optimalFitness, geneSet, display, custom_mutate = None, custom_create = None):
 	random.seed()
 
-	def fnMutate(parent):
-		return _mutate(parent, geneSet, get_fitness)
+	if custom_mutate is None:
+		def fnMutate(parent):
+			return _mutate(parent, geneSet, get_fitness)
+	else:
+		def fnMutate(parent):
+			return _mutate_custom(parent, custom_mutate, get_fitness)
 
-	def fnGenerateParent():
-		return _generate_parent(targetLen, geneSet, get_fitness)
+	if custom_create is None:
+		def fnGenerateParent():
+			return _generate_parent(targetLen, geneSet, get_fitness)
+	else:
+		def fnGenerateParent():
+			genes = custom_create()
+			return Chromosome(genes, get_fitness(genes))
 
 	for improvement in _get_improvement(fnMutate, fnGenerateParent):
 		display(improvement)
