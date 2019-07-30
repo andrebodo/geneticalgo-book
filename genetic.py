@@ -69,23 +69,28 @@ def _mutate_custom(parent, custom_mutate, get_fitness):
 # Generate sucessively better gene squence and send to get_best
 # using yield -> code does not run when function is called! instead it
 # returns a generator object (single use iterable)
-def _get_improvement(new_child, generate_parent, maxAge, poolSize):
+def _get_improvement(new_child, generate_parent, maxAge, poolSize, maxSeconds):
+	startTime = time.time()
 	parent = bestParent = generate_parent() # This refers to the value from the function passed as an arguement
-	yield bestParent
+	yield maxSeconds is not None and time.time() - startTime > maxSeconds, bestParent
 	parents = [bestParent] # For crossover
 	historicalFitnesses = [bestParent.Fitness] # List of fitnesses of the historical best parents
 
 	# populate parents array by generating new random parents, and contunously replace parent with better children
 	for _ in range(poolSize - 1):
 		parent = generate_parent()
+		if maxSeconds is not None and time.time() - startTime > maxSeconds:
+			yield True, parent
 		if parent.Fitness > bestParent.Fitness:
-			yield parent
+			yield False, parent
 			bestParent = parent
 			historicalFitnesses.append(parent.Fitness)
 		parents.append(parent)
 	lastParentIndex = poolSize - 1
 	pindex = 1
 	while True:
+		if maxSeconds is not None and time.time() - startTime > maxSeconds:
+			yield True, bestParent
 		# select a different parent to be the current parent
 		pindex = pindex - 1 if pindex > 0 else lastParentIndex
 		parent = parents[pindex]
@@ -123,14 +128,15 @@ def _get_improvement(new_child, generate_parent, maxAge, poolSize):
 		parent.Age = 0
 		# when find child with fitness better than best parent, replace best parent, and append to historical fitnesses
 		if child.Fitness > bestParent.Fitness:
-			yield child
+			yield False, child
 			bestParent = child
 			historicalFitnesses.append(child.Fitness)
 
 
 
 def get_best(get_fitness, targetLen, optimalFitness, geneSet, display, 
-			custom_mutate = None, custom_create = None, maxAge = None, poolSize = 1, crossover = None):
+			custom_mutate = None, custom_create = None, maxAge = None,
+			poolSize = 1, crossover = None, maxSeconds = None):
 
 	if custom_mutate is None:
 		def fnMutate(parent):
@@ -163,7 +169,9 @@ def get_best(get_fitness, targetLen, optimalFitness, geneSet, display,
 		def fnNewChild(parent, index, parents):
 			return fnMutate(parent)
 
-	for improvement in _get_improvement(fnNewChild, fnGenerateParent, maxAge, poolSize):
+	for timedOut, improvement in _get_improvement(fnNewChild, fnGenerateParent, maxAge, poolSize, maxSeconds):
+		if timedOut:
+			return improvement
 		display(improvement)
 		f = strategyLookup[improvement.Strategy]
 		usedStrategies.append(f)
